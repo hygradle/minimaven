@@ -1,0 +1,27 @@
+{
+  "name": "hygradle-minimaven",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-03-14",
+  "send_metrics": false,
+  "workers_dev": false,
+  "preview_urls": false,
+
+  "routes": [
+    {
+      "pattern": "maven.hygradle.dev",
+      "custom_domain": true,
+    },
+  ],
+
+  "r2_buckets": [
+    {
+      "binding": "ARTIFACTS",
+      "bucket_name": "minimaven-artifacts",
+    },
+  ],
+
+  // Cleanup cron: daily at 3AM UTC
+  "triggers": {
+    "crons": ["0 3 * * *"],
+  },
+}
