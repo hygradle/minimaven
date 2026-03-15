@@ -1,4 +1,4 @@
-import { compareVersions, isPrerelease } from "../version";
+import { compareVersions, isPrerelease, isVersion } from "../version";
 
 export async function generateMetadata(
   request: Request,
@@ -11,6 +11,13 @@ export async function generateMetadata(
 
   const versions = await listReleaseVersions(env, gaPrefix);
   if (versions.length === 0) {
+    return new Response("Not Found", { status: 404 });
+  }
+
+  // Confirm we're at a real GA prefix by probing the first version subdir.
+  // If it contains only more subdirectories (no leaf objects), this is a
+  // group-level path, not a GA path.
+  if (!(await containsObjects(env, gaPrefix + versions[0] + "/"))) {
     return new Response("Not Found", { status: 404 });
   }
 
@@ -71,7 +78,7 @@ async function listReleaseVersions(
     for (const prefix of result.delimitedPrefixes) {
       // prefix looks like "com/example/lib/1.0.0/"
       const version = prefix.slice(gaPrefix.length, -1);
-      if (version && !isPrerelease(version)) {
+      if (version && isVersion(version) && !isPrerelease(version)) {
         versions.push(version);
       }
     }
@@ -80,6 +87,11 @@ async function listReleaseVersions(
   } while (cursor);
 
   return versions;
+}
+
+async function containsObjects(env: Env, prefix: string): Promise<boolean> {
+  const result = await env.ARTIFACTS.list({ prefix, delimiter: "/", limit: 1 });
+  return result.objects.length > 0;
 }
 
 function formatTimestamp(date: Date): string {

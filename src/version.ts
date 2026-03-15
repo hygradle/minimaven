@@ -24,6 +24,14 @@ export function isPrerelease(version: string): boolean {
 }
 
 /**
+ * Returns true if the string looks like a Maven version
+ * (starts with a digit). Artifact IDs never start with digits.
+ */
+export function isVersion(s: string): boolean {
+  return s.length > 0 && s.charCodeAt(0) >= 48 && s.charCodeAt(0) <= 57;
+}
+
+/**
  * Compare two dot-separated numeric version strings.
  * Returns negative if a < b, zero if equal, positive if a > b.
  * Handles unequal segment counts (missing segments treated as 0).
