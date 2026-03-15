@@ -9,6 +9,12 @@ export function authorize(request: Request, env: Env): Response | null {
 
   const token = header.slice(7);
   if (token !== env.PUBLISH_TOKEN) {
+    console.log("Auth mismatch", {
+      tokenLength: token.length,
+      secretLength: env.PUBLISH_TOKEN.length,
+      tokenPrefix: token.slice(0, 4),
+      secretPrefix: env.PUBLISH_TOKEN.slice(0, 4),
+    });
     return new Response("Forbidden", { status: 403 });
   }
 
