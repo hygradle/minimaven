@@ -15,12 +15,47 @@ export function extractVersion(mavenPath: string): string | null {
 }
 
 /**
- * A version is pre-release if it contains a hyphen qualifier
- * (e.g., `1.2.3-pr.42`, `1.0.0-beta.1`).
- * Bare numeric versions (`1.2.3`, `2.0`) are releases.
+ * A pre-release pattern with its per-GA retain count.
+ * Cleanup keeps the `retain` most-recent versions matching this pattern
+ * for each group/artifact coordinate, deleting the rest.
+ */
+export interface PrereleasePattern {
+  pattern: RegExp;
+  retain: number;
+}
+
+/**
+ * Patterns that qualify a version as pre-release.
+ * Cleanup only expires versions matching one of these patterns.
+ * Releases (no match) are immutable and retained forever.
+ *
+ * Each pattern is tested against the hyphen-qualifier portion of the version
+ * (everything after the first `-`). Add new entries as needed, e.g.:
+ *
+ *   { pattern: /^pr\.\d+$/, retain: 5 }   — keep 5 most recent PR builds
+ *   { pattern: /^beta\.\d+$/, retain: 3 }  — keep 3 most recent betas
+ *   { pattern: /^rc\.\d+$/, retain: 3 }    — keep 3 most recent RCs
+ */
+export const PRERELEASE_PATTERNS: PrereleasePattern[] = [];
+
+/**
+ * Returns the matching {@link PrereleasePattern} entry for a version,
+ * or `null` if the version is not pre-release.
+ */
+export function matchingPattern(version: string): PrereleasePattern | null {
+  const hyphenIndex = version.indexOf("-");
+  if (hyphenIndex === -1) return null;
+  const qualifier = version.slice(hyphenIndex + 1);
+  return PRERELEASE_PATTERNS.find((p) => p.pattern.test(qualifier)) ?? null;
+}
+
+/**
+ * A version is pre-release if its hyphen qualifier matches one of the
+ * configured {@link PRERELEASE_PATTERNS}. Bare numeric versions and
+ * versions with unrecognized qualifiers are treated as releases.
  */
 export function isPrerelease(version: string): boolean {
-  return version.includes("-");
+  return matchingPattern(version) !== null;
 }
 
 /**
