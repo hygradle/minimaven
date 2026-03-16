@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "oxfmt": "^0.40.0",
-    "oxlint": "^0.16.10",
-    "wrangler": "^4.5.1"
+    "oxlint": "^0.16.12",
+    "wrangler": "^4.74.0"
   }
 }
