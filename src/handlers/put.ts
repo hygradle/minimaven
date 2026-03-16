@@ -25,9 +25,11 @@ export async function handlePut(request: Request, env: Env): Promise<Response> {
     return new Response("Bad Request", { status: 400 });
   }
 
-  // Maven/Gradle push maven-metadata.xml on publish, but we generate it
-  // dynamically on GET. Silently accept and discard to avoid R2 clutter.
-  if (baseFilename(key) === "maven-metadata.xml") {
+  // GA-level maven-metadata.xml is generated dynamically on GET, so silently
+  // accept and discard client-pushed copies to avoid R2 clutter.
+  // Version-level metadata (e.g. …/{version}/maven-metadata.xml) is stored
+  // normally — we don't generate it dynamically.
+  if (baseFilename(key) === "maven-metadata.xml" && extractVersion(key) === null) {
     return new Response("OK", { status: 200 });
   }
 

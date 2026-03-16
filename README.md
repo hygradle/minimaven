@@ -31,7 +31,8 @@ Behavior depends on what is being uploaded:
 
 | Upload target | Behavior |
 |---|---|
-| `maven-metadata.xml` (or its checksum sidecars) | Silently accepted and **discarded** (returns `200`). The server generates metadata dynamically, so client-pushed copies are unnecessary. |
+| GA-level `maven-metadata.xml` (or its checksum sidecars) | Silently accepted and **discarded** (returns `200`). The server generates GA-level metadata dynamically, so client-pushed copies are unnecessary. |
+| Version-level `maven-metadata.xml` (e.g. `…/{version}/maven-metadata.xml`) | **Stored** in R2 like any other artifact. Version-level metadata is not dynamically generated, so client-pushed copies are preserved. |
 | Release artifact (version has no hyphen qualifier matching a configured pattern) | **Immutable.** If the key already exists in R2, returns `409 Conflict`. Otherwise stores the artifact and returns `201`. |
 | Pre-release artifact (version matches a `PRERELEASE_PATTERNS` entry, e.g. `1.0.0-pr.42`) | **Overwritable.** Stores the artifact unconditionally and returns `201`. This allows CI to republish the same pre-release version. |
 
