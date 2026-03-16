@@ -5,13 +5,10 @@
   "send_metrics": false,
   "workers_dev": false,
   "preview_urls": false,
+  "telemetry": false,
 
   "observability": {
     "enabled": true,
-  },
-
-  "limits": {
-    "cpu_ms": 10,
   },
 
   "routes": [
