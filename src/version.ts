@@ -11,7 +11,8 @@ export function extractVersion(mavenPath: string): string | null {
   const segments = mavenPath.split("/").filter(Boolean);
   // Need at least: groupId / artifactId / version / filename
   if (segments.length < 4) return null;
-  return segments[segments.length - 2];
+  const candidate = segments[segments.length - 2];
+  return isVersion(candidate) ? candidate : null;
 }
 
 /**
